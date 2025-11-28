@@ -77,7 +77,7 @@ import axios from 'axios';
 function ResourceInfo({ label, icon: Icon, used, total, unit }) {
   const percentage = total > 0 ? (used / total) * 100 : 0;
   const color = percentage > 90 ? 'bg-red-500' : percentage > 70 ? 'bg-yellow-500' : 'bg-green-500';
-  
+ 
   return (
     <div className="space-y-1 w-48">
       <div className="flex items-center justify-between text-sm">
@@ -132,7 +132,7 @@ function UserForm({ user, onSubmit, isSubmitting }) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">Email</label>
-          <Input 
+          <Input
             value={formData.email}
             onChange={e => setFormData({...formData, email: e.target.value})}
             placeholder="user@example.com"
@@ -140,18 +140,17 @@ function UserForm({ user, onSubmit, isSubmitting }) {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Username</label>
-          <Input 
+          <Input
             value={formData.username}
             onChange={e => setFormData({...formData, username: e.target.value})}
             placeholder="username"
           />
         </div>
       </div>
-
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">First Name</label>
-          <Input 
+          <Input
             value={formData.first_name}
             onChange={e => setFormData({...formData, first_name: e.target.value})}
             placeholder="John"
@@ -159,37 +158,35 @@ function UserForm({ user, onSubmit, isSubmitting }) {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Last Name</label>
-          <Input 
+          <Input
             value={formData.last_name}
             onChange={e => setFormData({...formData, last_name: e.target.value})}
             placeholder="Doe"
           />
         </div>
       </div>
-
       <div className="space-y-2">
         <label className="text-sm font-medium">
           {user ? 'New Password (leave empty to keep unchanged)' : 'Password'}
         </label>
-        <Input 
+        <Input
           type="password"
           value={formData.password}
           onChange={e => setFormData({...formData, password: e.target.value})}
           placeholder="••••••••"
         />
       </div>
-
       <Tabs defaultValue="resources">
         <TabsList>
           <TabsTrigger value="resources">Resources</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
         </TabsList>
-        
+       
         <TabsContent value="resources" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Coins</label>
-              <Input 
+              <Input
                 type="number"
                 value={formData.coins}
                 onChange={e => setFormData({...formData, coins: parseInt(e.target.value) || 0})}
@@ -197,18 +194,17 @@ function UserForm({ user, onSubmit, isSubmitting }) {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Server Limit</label>
-              <Input 
+              <Input
                 type="number"
                 value={formData.servers}
                 onChange={e => setFormData({...formData, servers: parseInt(e.target.value) || 0})}
               />
             </div>
           </div>
-
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">RAM (MB)</label>
-              <Input 
+              <Input
                 type="number"
                 value={formData.ram}
                 onChange={e => setFormData({...formData, ram: parseInt(e.target.value) || 0})}
@@ -216,7 +212,7 @@ function UserForm({ user, onSubmit, isSubmitting }) {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Disk (MB)</label>
-              <Input 
+              <Input
                 type="number"
                 value={formData.disk}
                 onChange={e => setFormData({...formData, disk: parseInt(e.target.value) || 0})}
@@ -224,7 +220,7 @@ function UserForm({ user, onSubmit, isSubmitting }) {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">CPU (%)</label>
-              <Input 
+              <Input
                 type="number"
                 value={formData.cpu}
                 onChange={e => setFormData({...formData, cpu: parseInt(e.target.value) || 0})}
@@ -232,7 +228,6 @@ function UserForm({ user, onSubmit, isSubmitting }) {
             </div>
           </div>
         </TabsContent>
-
         <TabsContent value="permissions">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
@@ -258,7 +253,6 @@ function UserForm({ user, onSubmit, isSubmitting }) {
           </div>
         </TabsContent>
       </Tabs>
-
       <div className="flex justify-end space-x-2">
         <Button variant="outline" onClick={() => onSubmit(null)}>
           Cancel
@@ -281,7 +275,7 @@ function UserForm({ user, onSubmit, isSubmitting }) {
   );
 }
 
-// Main Component
+// Main Component — ONLY ONE PRISM VISUAL TOUCH
 export default function UsersPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -299,14 +293,13 @@ export default function UsersPage() {
     queryKey: ['users'],
     queryFn: async () => {
       const { data: usersData } = await axios.get('/api/users');
-      
+     
       const usersWithData = await Promise.all(usersData.data.map(async (user) => {
         try {
           const [coinsRes, resourcesRes] = await Promise.all([
             axios.get(`/api/users/${user.attributes.id}/coins`),
             axios.get(`/api/users/${user.attributes.id}/resources`)
           ]);
-
           return {
             ...user,
             coins: coinsRes.data.coins || 0,
@@ -331,23 +324,21 @@ export default function UsersPage() {
           };
         }
       }));
-
       return usersWithData;
     },
-    refetchInterval: 30000 // Refresh every 30 seconds
+    refetchInterval: 30000
   });
 
   // Filter and sort users
   const filteredUsers = useMemo(() => {
     if (!users) return [];
-    
-    return users.filter(user => 
+   
+    return users.filter(user =>
       user.attributes.username.toLowerCase().includes(search.toLowerCase()) ||
       user.attributes.email.toLowerCase().includes(search.toLowerCase()) ||
       user.attributes.first_name.toLowerCase().includes(search.toLowerCase()) ||
       user.attributes.last_name.toLowerCase().includes(search.toLowerCase())
     ).sort((a, b) => {
-      // Sort by admin status first, then by username
       if (a.attributes.root_admin !== b.attributes.root_admin) {
         return b.attributes.root_admin ? 1 : -1;
       }
@@ -359,7 +350,6 @@ export default function UsersPage() {
     (currentPage - 1) * parseInt(perPage),
     currentPage * parseInt(perPage)
   );
-
   const totalPages = Math.ceil(filteredUsers.length / parseInt(perPage));
 
   const handleCreateUser = async (formData) => {
@@ -367,11 +357,9 @@ export default function UsersPage() {
       setIsCreateModalOpen(false);
       return;
     }
-
     try {
       setIsSubmitting(true);
       setError('');
-
       const { data: userData } = await axios.post('/api/users', {
         email: formData.email,
         username: formData.username,
@@ -380,11 +368,7 @@ export default function UsersPage() {
         password: formData.password,
         root_admin: formData.admin
       });
-
-      // Wait for user creation to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Update resources and coins
       await Promise.all([
         axios.patch(`/api/users/${userData.data.attributes.id}/resources`, {
           ram: formData.ram,
@@ -396,11 +380,8 @@ export default function UsersPage() {
           coins: formData.coins
         })
       ]);
-
       setIsCreateModalOpen(false);
       queryClient.invalidateQueries('users');
-      
-      // Show success message
       setError('success:User created successfully');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create user');
@@ -415,11 +396,9 @@ export default function UsersPage() {
       setSelectedUser(null);
       return;
     }
-
     try {
       setIsSubmitting(true);
       setError('');
-
       const updateData = {
         email: formData.email,
         username: formData.username,
@@ -427,15 +406,10 @@ export default function UsersPage() {
         last_name: formData.last_name,
         root_admin: formData.admin
       };
-
       if (formData.password) {
         updateData.password = formData.password;
       }
-
-      // Update user info
       await axios.patch(`/api/users/${selectedUser.attributes.id}`, updateData);
-
-      // Update resources and coins
       await Promise.all([
         axios.patch(`/api/users/${selectedUser.attributes.id}/resources`, {
           ram: formData.ram,
@@ -447,12 +421,9 @@ export default function UsersPage() {
           coins: formData.coins
         })
       ]);
-
       setIsEditModalOpen(false);
       setSelectedUser(null);
       queryClient.invalidateQueries('users');
-      
-      // Show success message
       setError('success:User updated successfully');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update user');
@@ -489,7 +460,7 @@ export default function UsersPage() {
 
       {/* Error/Success Alert */}
       {error && (
-        <Alert 
+        <Alert
           variant={error.startsWith('success:') ? 'default' : 'destructive'}
           className="mb-6"
         >
@@ -504,8 +475,14 @@ export default function UsersPage() {
         </Alert>
       )}
 
-      {/* Main Content */}
-      <Card>
+      {/* Main Users Table — PRISM TOUCH */}
+      <Card className="relative overflow-hidden
+        border-2 border-transparent
+        bg-gradient-to-br from-violet-500/10 via-transparent to-cyan-500/10
+        backdrop-blur-xl
+        shadow-2xl
+        before:absolute before:inset-0 before:bg-gradient-to-tr before:from-violet-600/20 before:via-transparent before:to-cyan-600/20 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-700
+        after:absolute after:-inset-1 after:bg-gradient-to-r after:from-violet-500/30 after:via-transparent after:to-cyan-500/30 after:blur-3xl after:-z-10 after:opacity-40">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Users</CardTitle>
@@ -556,7 +533,7 @@ export default function UsersPage() {
                 ))
               ) : (
                 paginatedUsers.map(user => (
-                  <TableRow key={user.attributes.id}>
+                  <TableRow key={user.attributes.id} className="transition-all duration-300 hover:bg-white/5">
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
@@ -702,7 +679,7 @@ export default function UsersPage() {
         </CardContent>
       </Card>
 
-      {/* Create User Modal */}
+      {/* Modals — unchanged */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent>
           <DialogHeader>
@@ -711,14 +688,10 @@ export default function UsersPage() {
               Create a new user account with specified permissions and resources.
             </DialogDescription>
           </DialogHeader>
-          <UserForm 
-            onSubmit={handleCreateUser}
-            isSubmitting={isSubmitting}
-          />
+          <UserForm onSubmit={handleCreateUser} isSubmitting={isSubmitting} />
         </DialogContent>
       </Dialog>
 
-      {/* Edit User Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent>
           <DialogHeader>
@@ -727,15 +700,10 @@ export default function UsersPage() {
               Modify user account settings, permissions, and resources.
             </DialogDescription>
           </DialogHeader>
-          <UserForm 
-            user={selectedUser}
-            onSubmit={handleEditUser}
-            isSubmitting={isSubmitting}
-          />
+          <UserForm user={selectedUser} onSubmit={handleEditUser} isSubmitting={isSubmitting} />
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
