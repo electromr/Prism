@@ -78,7 +78,7 @@ source ~/.bashrc
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/PrismFOSS/Prism
+git clone https://github.com/electromr/Prism
 cd Prism
 ```
 
