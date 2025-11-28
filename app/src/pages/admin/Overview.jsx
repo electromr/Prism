@@ -52,14 +52,12 @@ import axios from 'axios';
 // Welcome Modal Component
 function WelcomeModal({ isOpen, onClose }) {
   const [dontShowAgain, setDontShowAgain] = useState(false);
-
   const handleClose = () => {
     if (dontShowAgain) {
       localStorage.setItem('prismWelcomeShown', 'true');
     }
     onClose();
   };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
@@ -71,14 +69,14 @@ function WelcomeModal({ isOpen, onClose }) {
               The next generation of Prism is here. New year, new look, new features and improvements. We're excited to have you join us now that you've upgraded from Heliactyl!
             </p>
             <div className="flex space-x-4 items-center">
-            <Checkbox 
-              id="dontShowAgain" 
-              checked={dontShowAgain} 
+            <Checkbox
+              id="dontShowAgain"
+              checked={dontShowAgain}
               onCheckedChange={setDontShowAgain}
               className="text-primary-500"
             />
-            <label 
-              htmlFor="dontShowAgain" 
+            <label
+              htmlFor="dontShowAgain"
               className="text-sm text-neutral-600 cursor-pointer"
             >
               Don't show this again
@@ -114,13 +112,11 @@ function SystemStats() {
     },
     refetchInterval: 60000
   });
-
   const statCards = [
     { icon: Server, label: 'Total Servers', value: stats?.servers || 0 },
     { icon: Users, label: 'Total Users', value: stats?.users || 0 },
     { icon: CircuitBoard, label: 'Active Nodes', value: stats?.nodes || 0 }
   ];
-
   return (
     <div className="grid grid-cols-3 gap-4">
       {statCards.map((stat, i) => (
@@ -154,7 +150,6 @@ function BackupsDialog({ isOpen, onClose }) {
   const [isRestoring, setIsRestoring] = useState(false);
   const [error, setError] = useState('');
   const [showRebootPrompt, setShowRebootPrompt] = useState(false);
-
   const { data: backups, isLoading, refetch } = useQuery({
     queryKey: ['backups'],
     queryFn: async () => {
@@ -163,7 +158,6 @@ function BackupsDialog({ isOpen, onClose }) {
     },
     enabled: isOpen
   });
-
   const handleRestore = async () => {
     try {
       setIsRestoring(true);
@@ -177,7 +171,6 @@ function BackupsDialog({ isOpen, onClose }) {
       setIsRestoring(false);
     }
   };
-
   const handleReboot = async () => {
     try {
       await axios.post('/api/reboot');
@@ -187,11 +180,9 @@ function BackupsDialog({ isOpen, onClose }) {
       setError('Failed to reboot dashboard');
     }
   };
-
   const formatDate = (timestamp) => {
     return new Date(timestamp).toLocaleString();
   };
-
   if (showRebootPrompt) {
     return (
       <AlertDialog open={true} onOpenChange={() => setShowRebootPrompt(false)}>
@@ -213,7 +204,6 @@ function BackupsDialog({ isOpen, onClose }) {
       </AlertDialog>
     );
   }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl">
@@ -223,7 +213,6 @@ function BackupsDialog({ isOpen, onClose }) {
             View and manage your dashboard configuration backups. You can restore to a previous version if needed.
           </DialogDescription>
         </DialogHeader>
-
         <div className="space-y-4">
           {error && (
             <Alert variant="destructive">
@@ -231,7 +220,6 @@ function BackupsDialog({ isOpen, onClose }) {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-
           <ScrollArea className="h-[400px] rounded-md border border-neutral-800">
             <Table>
               <TableHeader>
@@ -289,14 +277,13 @@ function BackupsDialog({ isOpen, onClose }) {
             </Table>
           </ScrollArea>
         </div>
-
         {selectedBackup && (
           <AlertDialog open={true} onOpenChange={() => setSelectedBackup(null)}>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Restore Configuration</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to restore the configuration from {formatDate(selectedBackup.timestamp)}? 
+                  Are you sure you want to restore the configuration from {formatDate(selectedBackup.timestamp)}?
                   This will overwrite your current configuration and require a dashboard reboot.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -318,7 +305,6 @@ function BackupsDialog({ isOpen, onClose }) {
             </AlertDialogContent>
           </AlertDialog>
         )}
-
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Close</Button>
         </DialogFooter>
@@ -337,7 +323,6 @@ export default function AdminOverview() {
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isRebooting, setIsRebooting] = useState(false);
-
   const { data: config, isLoading: loadingConfig } = useQuery({
     queryKey: ['config'],
     queryFn: async () => {
@@ -345,7 +330,6 @@ export default function AdminOverview() {
       return data;
     }
   });
-
   const { data: rebootStatus, isLoading: loadingReboot } = useQuery({
     queryKey: ['rebootStatus'],
     queryFn: async () => {
@@ -354,7 +338,6 @@ export default function AdminOverview() {
     },
     refetchInterval: 5000
   });
-
   useEffect(() => {
     const fetchConfigContent = async () => {
       try {
@@ -366,19 +349,15 @@ export default function AdminOverview() {
     };
     fetchConfigContent();
   }, []);
-
   const handleSaveConfig = async () => {
     try {
       setIsSaving(true);
       setError('');
-
-      // Create backup before saving
       const timestamp = Date.now();
       const backupName = `config-${timestamp}.toml`;
       await axios.post('/api/config/raw', configContent, {
         headers: { 'Content-Type': 'text/plain' }
       });
-
       setError('Configuration saved successfully. A reboot is required to apply changes.');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to save configuration');
@@ -386,7 +365,6 @@ export default function AdminOverview() {
       setIsSaving(false);
     }
   };
-
   const handleReboot = async () => {
     try {
       setIsRebooting(true);
@@ -398,7 +376,7 @@ export default function AdminOverview() {
         setIsRebooting(false);
       }
     };
-  
+ 
     const handleCreateBackup = async () => {
       try {
         setError('');
@@ -408,7 +386,7 @@ export default function AdminOverview() {
         setError('Failed to create backup');
       }
     };
-  
+ 
     if (loadingConfig || loadingReboot) {
       return (
         <div className="p-6">
@@ -420,28 +398,28 @@ export default function AdminOverview() {
         </div>
       );
     }
-  
+ 
     return (
       <div className="min-h-screen bg-neutral-950">
-        <WelcomeModal 
-          isOpen={showWelcome} 
-          onClose={() => setShowWelcome(false)} 
+        <WelcomeModal
+          isOpen={showWelcome}
+          onClose={() => setShowWelcome(false)}
         />
-        
+       
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold">Overview</h1>
             </div>
             <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleCreateBackup}
               >
                 <Archive className="w-4 h-4 mr-2" />
                 Create Backup
               </Button>
-              <Button 
+              <Button
                 onClick={() => setIsRebootDialogOpen(true)}
                 variant={rebootStatus?.needsReboot ? "default" : "outline"}
                 disabled={isRebooting}
@@ -465,7 +443,7 @@ export default function AdminOverview() {
               </Button>
             </div>
           </div>
-  
+ 
           {/* System Overview Section */}
           <div className="grid gap-6 mb-6">
             <Card>
@@ -487,51 +465,58 @@ export default function AdminOverview() {
               </CardContent>
             </Card>
           </div>
-  
+ 
           <div className="grid gap-6 grid-cols-4">
-{/* Main Configuration Section */}
-<div className="col-span-3">
-  <Card className="flex flex-col h-[calc(100vh-20rem)]">
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2">
-        <FileCode className="w-4 h-4" />
-        Configuration Editor
-      </CardTitle>
-      <CardDescription>
-        Edit your dashboard's configuration file directly. Be careful as incorrect changes may break your dashboard.
-      </CardDescription>
-    </CardHeader>
-    <CardContent className="flex-1 pb-0">
-      <div className="h-full">
-        <textarea
-          value={configContent}
-          onChange={(e) => setConfigContent(e.target.value)}
-          className="w-full h-full p-4 bg-neutral-950 font-mono text-sm resize-none focus:outline-none border border-neutral-800 rounded-md"
-          spellCheck={false}
-        />
-      </div>
-    </CardContent>
-    <CardFooter className="flex justify-between mt-4">
-      <div className="text-sm text-neutral-500">
-        {rebootStatus?.needsReboot && (
-          <span className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-yellow-500" />
-            Reboot required to apply changes
-          </span>
-        )}
-      </div>
-      <Button onClick={handleSaveConfig} disabled={isSaving}>
-        {isSaving ? (
-          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-        ) : (
-          <Save className="w-4 h-4 mr-2" />
-        )}
-        Save Changes
-      </Button>
-    </CardFooter>
-  </Card>
-</div>
-  
+            {/* Main Configuration Section — PRISM TOUCH */}
+            <div className="col-span-3">
+              <Card className="flex flex-col h-[calc(100vh-20rem)] relative overflow-hidden
+                border-2 border-transparent
+                bg-gradient-to-br from-violet-500/10 via-transparent to-cyan-500/10
+                backdrop-blur-xl
+                shadow-2xl
+                before:absolute before:inset-0 before:bg-gradient-to-tr before:from-violet-600/20 before:via-transparent before:to-cyan-600/20 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-700
+                after:absolute after:-inset-1 after:bg-gradient-to-r after:from-violet-500/30 after:via-transparent after:to-cyan-500/30 after:blur-3xl after:-z-10 after:opacity-40"
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileCode className="w-4 h-4" />
+                    Configuration Editor
+                  </CardTitle>
+                  <CardDescription>
+                    Edit your dashboard's configuration file directly. Be careful as incorrect changes may break your dashboard.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 pb-0">
+                  <div className="h-full">
+                    <textarea
+                      value={configContent}
+                      onChange={(e) => setConfigContent(e.target.value)}
+                      className="w-full h-full p-4 bg-neutral-950/80 font-mono text-sm resize-none focus:outline-none border border-neutral-800/50 rounded-md backdrop-blur-sm"
+                      spellCheck={false}
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between mt-4">
+                  <div className="text-sm text-neutral-500">
+                    {rebootStatus?.needsReboot && (
+                      <span className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-yellow-500" />
+                        Reboot required to apply changes
+                      </span>
+                    )}
+                  </div>
+                  <Button onClick={handleSaveConfig} disabled={isSaving}>
+                    {isSaving ? (
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4 mr-2" />
+                    )}
+                    Save Changes
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+ 
             {/* Quick Actions Section */}
             <div className="space-y-6">
               <Card>
@@ -541,41 +526,18 @@ export default function AdminOverview() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start" 
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
                       onClick={() => setIsBackupsDialogOpen(true)}
                     >
                       <Archive className="w-4 h-4 mr-2" />
                       Config Backups
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start hidden"
-                      onClick={() => window.open('/api/config/backups', '_blank')}
-                    >
-                      <FileCode className="w-4 h-4 mr-2" />
-                      View Backup Files
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start hidden"
-                      onClick={async () => {
-                        try {
-                          await axios.post('/api/panel/rebuild');
-                          setError('Panel rebuild initiated successfully');
-                        } catch (err) {
-                          setError('Failed to rebuild panel');
-                        }
-                      }}
-                    >
-                      <Box className="w-4 h-4 mr-2" />
-                      Rebuild Panel
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
-  
+ 
               {error && (
                 <Alert variant={error.includes('successfully') ? "default" : "destructive"}>
                   {error.includes('successfully') ? (
@@ -589,12 +551,12 @@ export default function AdminOverview() {
             </div>
           </div>
         </div>
-  
-        <BackupsDialog 
+ 
+        <BackupsDialog
           isOpen={isBackupsDialogOpen}
           onClose={() => setIsBackupsDialogOpen(false)}
         />
-  
+ 
         <AlertDialog open={isRebootDialogOpen} onOpenChange={setIsRebootDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
