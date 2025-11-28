@@ -45,7 +45,6 @@ function NodeStatusBadge({ status }) {
     maintenance: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
     installing: "bg-blue-500/10 text-blue-500 border-blue-500/20"
   };
-
   return (
     <Badge variant="outline" className={statusStyles[status?.toLowerCase()] || statusStyles.offline}>
       {status || 'Unknown'}
@@ -73,7 +72,6 @@ function NodeDetailsModal({ node, isOpen, onClose }) {
             Node Details - {node?.attributes?.name}
           </DialogTitle>
         </DialogHeader>
-
         <div className="grid gap-6">
           {/* Basic Information */}
           <Card>
@@ -150,7 +148,7 @@ function NodeDetailsModal({ node, isOpen, onClose }) {
   );
 }
 
-// Main Nodes Page Component
+// Main Nodes Page Component — only visual "prism" touch added
 export default function NodesPage() {
   const [search, setSearch] = useState('');
   const [perPage, setPerPage] = useState('10');
@@ -165,7 +163,7 @@ export default function NodesPage() {
     }
   });
 
-  const filteredNodes = nodes?.filter(node => 
+  const filteredNodes = nodes?.filter(node =>
     node.attributes.name.toLowerCase().includes(search.toLowerCase()) ||
     node.attributes.fqdn.toLowerCase().includes(search.toLowerCase())
   ) || [];
@@ -174,7 +172,6 @@ export default function NodesPage() {
     (currentPage - 1) * parseInt(perPage),
     currentPage * parseInt(perPage)
   );
-
   const totalPages = Math.ceil(filteredNodes.length / parseInt(perPage));
 
   return (
@@ -183,7 +180,8 @@ export default function NodesPage() {
         <h1 className="text-2xl font-bold">Nodes</h1>
       </div>
 
-      <Card>
+      {/* Prism touch: subtle gradient border + soft shadow */}
+      <Card className="border-2 border-transparent bg-clip-padding bg-gradient-to-br from-violet-500/5 via-transparent to-cyan-500/5 shadow-xl">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Nodes</CardTitle>
@@ -207,6 +205,7 @@ export default function NodesPage() {
             </div>
           </div>
         </CardHeader>
+
         <CardContent>
           <Table>
             <TableHeader>
@@ -229,7 +228,10 @@ export default function NodesPage() {
                 ))
               ) : (
                 paginatedNodes.map(node => (
-                  <TableRow key={node.attributes.id}>
+                  <TableRow 
+                    key={node.attributes.id}
+                    className="transition-all duration-200 hover:bg-gradient-to-r hover:from-violet-500/5 hover:to-cyan-500/5"
+                  >
                     <TableCell>
                       <div>
                         <div className="font-medium">{node.attributes.name}</div>
@@ -295,7 +297,7 @@ export default function NodesPage() {
       </Card>
 
       {/* Node Details Modal */}
-      <NodeDetailsModal 
+      <NodeDetailsModal
         node={selectedNode}
         isOpen={!!selectedNode}
         onClose={() => setSelectedNode(null)}
