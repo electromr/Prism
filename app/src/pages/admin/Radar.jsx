@@ -43,13 +43,12 @@ function NodeForm({ node, onSubmit, isSubmitting }) {
     port: node?.port || '',
     webhookUrl: node?.webhookUrl || ''
   });
-
   return (
     <div className="grid gap-6 py-4">
       <div className="grid gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">Node Name</label>
-          <Input 
+          <Input
             value={formData.name}
             onChange={e => setFormData({...formData, name: e.target.value})}
             placeholder="Production Node 1"
@@ -57,7 +56,7 @@ function NodeForm({ node, onSubmit, isSubmitting }) {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">FQDN / IP Address</label>
-          <Input 
+          <Input
             value={formData.fqdn}
             onChange={e => setFormData({...formData, fqdn: e.target.value})}
             placeholder="radar.example.com"
@@ -65,7 +64,7 @@ function NodeForm({ node, onSubmit, isSubmitting }) {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Port</label>
-          <Input 
+          <Input
             type="number"
             value={formData.port}
             onChange={e => setFormData({...formData, port: e.target.value})}
@@ -74,14 +73,13 @@ function NodeForm({ node, onSubmit, isSubmitting }) {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Webhook URL (Optional)</label>
-          <Input 
+          <Input
             value={formData.webhookUrl}
             onChange={e => setFormData({...formData, webhookUrl: e.target.value})}
             placeholder="https://discord.com/api/webhooks/..."
           />
         </div>
       </div>
-
       <div className="flex justify-end space-x-2">
         <Button variant="outline" onClick={() => onSubmit(null)}>
           Cancel
@@ -112,7 +110,6 @@ function NodeDetails({ node, onClose }) {
     enabled: !!node?.id,
     refetchInterval: 5000
   });
-
   return (
     <Dialog open={!!node} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
@@ -125,7 +122,6 @@ function NodeDetails({ node, onClose }) {
             View detailed information and statistics for this Radar node
           </DialogDescription>
         </DialogHeader>
-
         <div className="space-y-6">
           {/* Basic Information */}
           <Card>
@@ -153,7 +149,6 @@ function NodeDetails({ node, onClose }) {
               </div>
             </CardContent>
           </Card>
-
           {/* Statistics */}
           {nodeDetails?.status === 'online' && nodeDetails?.stats && (
             <Card>
@@ -181,7 +176,6 @@ function NodeDetails({ node, onClose }) {
                     </div>
                   </div>
                 </div>
-
                 {nodeDetails.stats.detection_types && (
                   <div className="mt-6">
                     <div className="text-sm font-medium text-neutral-500 mb-2">Detection Breakdown</div>
@@ -206,7 +200,7 @@ function NodeDetails({ node, onClose }) {
   );
 }
 
-// Main Component
+// Main Component — PRISM TOUCH APPLIED
 export default function RadarPage() {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -230,13 +224,10 @@ export default function RadarPage() {
       setIsCreateModalOpen(false);
       return;
     }
-
     try {
       setIsSubmitting(true);
       setError('');
-      
       await axios.post('/api/radar/nodes', formData);
-      
       setIsCreateModalOpen(false);
       queryClient.invalidateQueries('radar-nodes');
       setError('success:Node created successfully');
@@ -275,7 +266,7 @@ export default function RadarPage() {
 
       {/* Error/Success Alert */}
       {error && (
-        <Alert 
+        <Alert
           variant={error.startsWith('success:') ? 'default' : 'destructive'}
           className="mb-6"
         >
@@ -290,8 +281,15 @@ export default function RadarPage() {
         </Alert>
       )}
 
-      {/* Nodes List */}
-      <Card>
+      {/* Nodes List — PRISM AURA */}
+      <Card className="relative overflow-hidden
+        border-2 border-transparent
+        bg-gradient-to-br from-violet-500/10 via-transparent to-emerald-500/10
+        backdrop-blur-xl
+        shadow-2xl
+        before:absolute before:inset-0 before:bg-gradient-to-t before:from-violet-600/20 before:via-transparent before:to-emerald-600/20 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-1000
+        after:absolute after:-inset-1 after:bg-gradient-to-r after:from-violet-500/40 after:via-transparent after:to-emerald-500/40 after:blur-3xl after:-z-10 after:opacity-50"
+      >
         <CardHeader>
           <CardTitle>Radar Nodes</CardTitle>
           <CardDescription>
@@ -326,8 +324,8 @@ export default function RadarPage() {
                     <div className="flex flex-col items-center gap-2">
                       <Shield className="w-8 h-8 text-neutral-400" />
                       <div>No Radar nodes found</div>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => setIsCreateModalOpen(true)}
                       >
@@ -338,7 +336,10 @@ export default function RadarPage() {
                 </TableRow>
               ) : (
                 nodes?.map(node => (
-                  <TableRow key={node.id}>
+                  <TableRow 
+                    key={node.id}
+                    className="transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-500/5 hover:via-transparent hover:to-emerald-500/5"
+                  >
                     <TableCell>
                       <div>
                         <div className="font-medium">{node.name}</div>
@@ -348,7 +349,7 @@ export default function RadarPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge 
+                      <Badge
                         variant={node.status === 'online' ? 'success' : 'destructive'}
                         className="capitalize"
                       >
