@@ -30,31 +30,31 @@ import {
 } from 'lucide-react';
 
 const StatsCard = ({ title, value, className }) => (
-  <Card>
-    <CardContent className="p-6">
-      <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-      <p className={`mt-2 text-3xl font-semibold ${className}`}>{value}</p>
+  <Card className="relative overflow-hidden backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl
+    before:absolute before:inset-0 before:bg-gradient-to-br before:from-violet-500/20 before:via-transparent before:to-cyan-500/20 before:opacity-60">
+    <CardContent className="p-6 relative z-10">
+      <h3 className="text-sm font-medium text-gray-400">{title}</h3>
+      <p className={`mt-2 text-3xl font-bold ${className || 'text-white'}`}>{value}</p>
     </CardContent>
   </Card>
 );
 
 const PriorityBadge = ({ priority }) => {
   const variants = {
-    low: "bg-blue-100 text-blue-800 border-blue-200",
-    medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    high: "bg-orange-100 text-orange-800 border-orange-200",
-    urgent: "bg-red-100 text-red-800 border-red-200"
+    low: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+    medium: "bg-yellow-500/10 text-yellow-400 border-yellow-500/30",
+    high: "bg-orange-500/10 text-orange-400 border-orange-500/30",
+    urgent: "bg-red-500/10 text-red-400 border-red-500/30"
   };
-
   return (
-    <Badge variant="outline" className={variants[priority]}>
+    <Badge variant="outline" className={`${variants[priority]} backdrop-blur-sm`}>
       {priority.charAt(0).toUpperCase() + priority.slice(1)}
     </Badge>
   );
 };
 
 const StatusBadge = ({ status }) => (
-  <Badge variant={status === 'open' ? 'success' : 'secondary'}>
+  <Badge variant={status === 'open' ? 'success' : 'secondary'} className="backdrop-blur-sm">
     {status.charAt(0).toUpperCase() + status.slice(1)}
   </Badge>
 );
@@ -75,14 +75,12 @@ const ViewTicketDialog = ({ isOpen, onClose, ticketId, onStatusChange }) => {
   const handleSubmitReply = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
     try {
       await fetch(`/api/tickets/${ticketId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: replyContent })
       });
-      
       setReplyContent('');
       refetch();
     } catch (error) {
@@ -96,12 +94,12 @@ const ViewTicketDialog = ({ isOpen, onClose, ticketId, onStatusChange }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl bg-neutral-950/90 backdrop-blur-2xl border border-white/10">
         <DialogHeader>
           <div className="flex justify-between items-start">
             <div>
-              <DialogTitle>{ticket.subject}</DialogTitle>
-              <p className="text-sm text-gray-500 mt-1">#{ticket.id.slice(0, 8)}</p>
+              <DialogTitle className="text-white">{ticket.subject}</DialogTitle>
+              <p className="text-sm text-gray-400 mt-1">#{ticket.id.slice(0, 8)}</p>
             </div>
             <div className="flex gap-2">
               <PriorityBadge priority={ticket.priority} />
@@ -109,12 +107,17 @@ const ViewTicketDialog = ({ isOpen, onClose, ticketId, onStatusChange }) => {
             </div>
           </div>
         </DialogHeader>
-
         <div className="space-y-4 max-h-[400px] overflow-y-auto">
           {ticket.messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`bg-gray-50 rounded-lg p-4 ${msg.isStaff ? 'ml-8' : 'mr-8'}`}
+              className={`rounded-lg p-4 backdrop-blur-md border ${
+                msg.isStaff 
+                  ? 'ml-8 bg-violet-500/10 border-violet-500/30' 
+                  : msg.isSystem 
+                  ? 'bg-neutral-800/50 border-neutral-700' 
+                  : 'mr-8 bg-cyan-500/10 border-cyan-500/30'
+              }`}
             >
               <div className="flex justify-between items-start">
                 <Badge variant={msg.isSystem ? "outline" : msg.isStaff ? "secondary" : "default"}>
@@ -124,18 +127,17 @@ const ViewTicketDialog = ({ isOpen, onClose, ticketId, onStatusChange }) => {
                   {new Date(msg.timestamp).toLocaleString()}
                 </span>
               </div>
-              <p className="mt-2 text-sm text-gray-700">{msg.content}</p>
+              <p className="mt-2 text-sm text-gray-300">{msg.content}</p>
             </div>
           ))}
         </div>
-
-        <div className="border-t pt-4">
+        <div className="border-t border-white/10 pt-4">
           <form onSubmit={handleSubmitReply} className="space-y-4">
             <Textarea
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
               placeholder="Type your reply..."
-              className="min-h-[100px]"
+              className="min-h-[100px] bg-white/5 border-white/10 text-white placeholder:text-gray-500"
             />
             <div className="flex justify-between">
               <Button
@@ -167,15 +169,14 @@ const ViewTicketDialog = ({ isOpen, onClose, ticketId, onStatusChange }) => {
 
 const UpdatePriorityDialog = ({ isOpen, onClose, ticketId, onUpdate }) => {
   const [priority, setPriority] = useState('low');
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="bg-neutral-950/90 backdrop-blur-2xl border border-white/10">
         <DialogHeader>
-          <DialogTitle>Update Priority</DialogTitle>
+          <DialogTitle className="text-white">Update Priority</DialogTitle>
         </DialogHeader>
         <Select value={priority} onValueChange={setPriority}>
-          <SelectTrigger>
+          <SelectTrigger className="bg-white/5 border-white/10">
             <SelectValue placeholder="Select priority" />
           </SelectTrigger>
           <SelectContent>
@@ -283,19 +284,18 @@ export default function AdminSupportDashboard() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="min-h-screen bg-neutral-950 text-white space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-semibold">Support Tickets</h1>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+              Support Tickets
+            </h1>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Select
-            value={filters.priority}
-            onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}
-          >
-            <SelectTrigger className="w-[150px]">
+          <Select value={filters.priority} onValueChange={(v) => setFilters(prev => ({ ...prev, priority: v }))}>
+            <SelectTrigger className="w-[150px] bg-white/5 border-white/10">
               <SelectValue placeholder="Priority" />
             </SelectTrigger>
             <SelectContent>
@@ -306,12 +306,8 @@ export default function AdminSupportDashboard() {
               <SelectItem value="urgent">Urgent</SelectItem>
             </SelectContent>
           </Select>
-
-          <Select
-            value={filters.category}
-            onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}
-          >
-            <SelectTrigger className="w-[150px]">
+          <Select value={filters.category} onValueChange={(v) => setFilters(prev => ({ ...prev, category: v }))}>
+            <SelectTrigger className="w-[150px] bg-white/5 border-white/10">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
@@ -322,12 +318,8 @@ export default function AdminSupportDashboard() {
               <SelectItem value="abuse">Abuse</SelectItem>
             </SelectContent>
           </Select>
-
-          <Select
-            value={filters.status}
-            onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
-          >
-            <SelectTrigger className="w-[150px]">
+          <Select value={filters.status} onValueChange={(v) => setFilters(prev => ({ ...prev, status: v }))}>
+            <SelectTrigger className="w-[150px] bg-white/5 border-white/10">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -336,71 +328,57 @@ export default function AdminSupportDashboard() {
               <SelectItem value="closed">Closed</SelectItem>
             </SelectContent>
           </Select>
-
           <Input
             placeholder="Search tickets..."
             value={filters.search}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-            className="w-[200px]"
+            className="w-[200px] bg-white/5 border-white/10 placeholder:text-gray-500"
           />
-
-          <Button onClick={exportTickets}>
+          <Button onClick={exportTickets} variant="outline">
             <Download className="w-4 h-4 mr-2" />
             Export CSV
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        <StatsCard 
-          title="Total Tickets" 
-          value={stats?.total || '-'} 
-        />
-        <StatsCard 
-          title="Open Tickets" 
-          value={stats?.open || '-'}
-          className="text-emerald-600"
-        />
-        <StatsCard 
-          title="Avg. Response Time" 
-          value={stats?.averageResponseTime ? `${Math.round(stats.averageResponseTime / 60000)}m` : '-'}
-          className="text-amber-600"
-        />
-        <StatsCard 
-          title="Last 7 Days" 
-          value={stats?.ticketsLastWeek || '-'}
-          className="text-blue-600"
-        />
+      <div className="grid grid-cols-4 gap-6">
+        <StatsCard title="Total Tickets" value={stats?.total || '-'} />
+        <StatsCard title="Open Tickets" value={stats?.open || '-'} className="text-emerald-400" />
+        <StatsCard title="Avg. Response Time" value={stats?.averageResponseTime ? `${Math.round(stats.averageResponseTime / 60000)}m` : '-'} className="text-amber-400" />
+        <StatsCard title="Last 7 Days" value={stats?.ticketsLastWeek || '-'} className="text-cyan-400" />
       </div>
 
-      <Card>
+      {/* Main Ticket Table — PRISM GLASS */}
+      <Card className="relative overflow-hidden backdrop-blur-2xl bg-white/5 border border-white/10 shadow-2xl
+        before:absolute before:inset-0 before:bg-gradient-to-br before:from-violet-600/20 before:via-transparent before:to-cyan-600/20 before:opacity-70
+        after:absolute after:-inset-1 after:bg-gradient-to-r after:from-violet-500/40 after:via-transparent after:to-cyan-500/40 after:blur-3xl after:-z-10">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b">
-                <th className="text-left p-4">Ticket</th>
-                <th className="text-left p-4">User</th>
-                <th className="text-left p-4">Category</th>
-                <th className="text-left p-4">Priority</th>
-                <th className="text-left p-4">Status</th>
-                <th className="text-center p-4">Actions</th>
+              <tr className="border-b border-white/10">
+                <th className="text-left p-4 text-gray-300">Ticket</th>
+                <th className="text-left p-4 text-gray-300">User</th>
+                <th className="text-left p-4 text-gray-300">Category</th>
+                <th className="text-left p-4 text-gray-300">Priority</th>
+                <th className="text-left p-4 text-gray-300">Status</th>
+                <th className="text-center p-4 text-gray-300">Actions</th>
               </tr>
             </thead>
             <tbody>
-            {paginatedTickets.map(ticket => (
-                <tr key={ticket.id} className="border-b">
+              {paginatedTickets.map(ticket => (
+                <tr key={ticket.id} className="border-b border-white/5 transition-all duration-300 hover:bg-white/5">
                   <td className="p-4">
                     <div>
-                      <div className="font-medium">{ticket.subject}</div>
-                      <div className="text-sm text-gray-500">#{ticket.id.slice(0, 8)}</div>
+                      <div className="font-medium text-white">{ticket.subject}</div>
+                      <div className="text-sm text-gray-400">#{ticket.id.slice(0, 8)}</div>
                     </div>
                   </td>
                   <td className="p-4">
-                    <div className="text-sm">{ticket.user.username}</div>
+                    <div className="text-sm text-gray-300">{ticket.user.username}</div>
                     <div className="text-xs text-gray-500">{ticket.user.email}</div>
                   </td>
                   <td className="p-4">
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="bg-white/10 border-white/20">
                       {ticket.category}
                     </Badge>
                   </td>
@@ -412,32 +390,21 @@ export default function AdminSupportDashboard() {
                   </td>
                   <td className="p-4">
                     <div className="flex justify-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedTicketId(ticket.id)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedTicketId(ticket.id)}>
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setPriorityUpdateTicketId(ticket.id)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setPriorityUpdateTicketId(ticket.id)}>
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleStatusChange(
-                          ticket.id,
-                          ticket.status === 'open' ? 'closed' : 'open'
-                        )}
+                        onClick={() => handleStatusChange(ticket.id, ticket.status === 'open' ? 'closed' : 'open')}
                       >
                         {ticket.status === 'open' ? (
-                          <X className="w-4 h-4 text-red-500" />
+                          <X className="w-4 h-4 text-red-400" />
                         ) : (
-                          <RotateCcw className="w-4 h-4 text-emerald-500" />
+                          <RotateCcw className="w-4 h-4 text-emerald-400" />
                         )}
                       </Button>
                     </div>
@@ -447,74 +414,40 @@ export default function AdminSupportDashboard() {
             </tbody>
           </table>
         </div>
-        
+
         {/* Pagination */}
-        <div className="flex items-center justify-between p-4 border-t">
-          <div className="text-sm text-gray-500">
-            Showing {(currentPage - 1) * perPage + 1} to{' '}
-            {Math.min(currentPage * perPage, filteredTickets.length)} of{' '}
-            {filteredTickets.length} tickets
+        <div className="flex items-center justify-between p-4 border-t border-white/10">
+          <div className="text-sm text-gray-400">
+            Showing {(currentPage - 1) * perPage + 1} to {Math.min(currentPage * perPage, filteredTickets.length)} of {filteredTickets.length} tickets
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => prev - 1)}
-            >
+            <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
               Previous
             </Button>
             {Array.from({ length: Math.ceil(filteredTickets.length / perPage) }).map((_, i) => {
               const pageNumber = i + 1;
-              // Show first, last, and pages around current page
-              if (
-                pageNumber === 1 ||
-                pageNumber === Math.ceil(filteredTickets.length / perPage) ||
-                (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)
-              ) {
+              if (pageNumber === 1 || pageNumber === Math.ceil(filteredTickets.length / perPage) || 
+                  (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)) {
                 return (
-                  <Button
-                    key={pageNumber}
-                    variant={currentPage === pageNumber ? 'default' : 'outline'}
-                    onClick={() => setCurrentPage(pageNumber)}
-                  >
+                  <Button key={pageNumber} variant={currentPage === pageNumber ? 'default' : 'outline'} onClick={() => setCurrentPage(pageNumber)}>
                     {pageNumber}
                   </Button>
                 );
-              } else if (
-                (pageNumber === 2 && currentPage > 4) ||
-                (pageNumber === Math.ceil(filteredTickets.length / perPage) - 1 &&
-                  currentPage < Math.ceil(filteredTickets.length / perPage) - 3)
-              ) {
-                return <span key={pageNumber} className="px-2">...</span>;
+              } else if ((pageNumber === 2 && currentPage > 4) || 
+                         (pageNumber === Math.ceil(filteredTickets.length / perPage) - 1 && currentPage < Math.ceil(filteredTickets.length / perPage) - 3)) {
+                return <span key={pageNumber} className="px-2 text-gray-400">...</span>;
               }
               return null;
             })}
-            <Button
-              variant="outline"
-              disabled={currentPage === Math.ceil(filteredTickets.length / perPage)}
-              onClick={() => setCurrentPage(prev => prev + 1)}
-            >
+            <Button variant="outline" disabled={currentPage === Math.ceil(filteredTickets.length / perPage)} onClick={() => setCurrentPage(p => p + 1)}>
               Next
             </Button>
           </div>
         </div>
       </Card>
 
-      {/* View Ticket Dialog */}
-      <ViewTicketDialog
-        isOpen={!!selectedTicketId}
-        onClose={() => setSelectedTicketId(null)}
-        ticketId={selectedTicketId}
-        onStatusChange={handleStatusChange}
-      />
-
-      {/* Update Priority Dialog */}
-      <UpdatePriorityDialog
-        isOpen={!!priorityUpdateTicketId}
-        onClose={() => setPriorityUpdateTicketId(null)}
-        ticketId={priorityUpdateTicketId}
-        onUpdate={handlePriorityUpdate}
-      />
+      <ViewTicketDialog isOpen={!!selectedTicketId} onClose={() => setSelectedTicketId(null)} ticketId={selectedTicketId} onStatusChange={handleStatusChange} />
+      <UpdatePriorityDialog isOpen={!!priorityUpdateTicketId} onClose={() => setPriorityUpdateTicketId(null)} ticketId={priorityUpdateTicketId} onUpdate={handlePriorityUpdate} />
     </div>
   );
 }
